@@ -6,6 +6,7 @@ import {
   updateBook,
   deleteBook,
 } from '../../controllers/bookController';
+// import { protect } from '../../controllers/authController';
 
 const bookRouter = express.Router();
 

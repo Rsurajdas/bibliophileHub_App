@@ -1,115 +1,94 @@
 import Genre from '../models/genreModel';
+import { catchAsync } from './../utils/catchAsync';
+import AppError from './../utils/appError';
 
-export const getAllGenre = async (req, res) => {
-  try {
-    const genres = await Genre.find().populate({ path: 'books' });
-    res.status(200).json({
-      status: 'success',
-      results: genres.length,
-      data: {
-        genres,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err,
-    });
+export const getAllGenre = catchAsync(async (req, res, next) => {
+  const genres = await Genre.find().populate({ path: 'books' });
+  res.status(200).json({
+    status: 'success',
+    results: genres.length,
+    data: {
+      genres,
+    },
+  });
+});
+
+export const createGenre = catchAsync(async (req, res, next) => {
+  const genre = await Genre.create(req.body);
+  res.status(201).json({
+    status: 'success',
+    data: {
+      genre,
+    },
+  });
+});
+
+export const getGenre = catchAsync(async (req, res, next) => {
+  const genre = await Genre.findById(req.params.id).populate({
+    path: 'books',
+  });
+
+  if (!genre) {
+    return next(new AppError('No book found with that Id', 404));
   }
-};
 
-export const createGenre = async (req, res) => {
-  try {
-    console.log(req.body);
-    const genre = await Genre.create(req.body);
-    res.status(201).json({
-      status: 'success',
-      data: {
-        genre,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err,
-    });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      genre,
+    },
+  });
+});
+
+export const updateGenre = catchAsync(async (req, res, next) => {
+  const genre = await Genre.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!genre) {
+    return next(new AppError('No book found with that Id', 404));
   }
-};
 
-export const getGenre = async (req, res) => {
-  try {
-    const genre = await Genre.findById(req.params.id).populate({
-      path: 'books',
-    });
-    res.status(200).json({
-      status: 'success',
-      data: {
-        genre,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err,
-    });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      genre,
+    },
+  });
+});
+
+export const deleteGenre = catchAsync(async (req, res, next) => {
+  const genre = await Genre.findByIdAndDelete(req.params.id);
+
+  if (!genre) {
+    return next(new AppError('No book found with that Id', 404));
   }
-};
 
-export const updateGenre = async (req, res) => {
-  try {
-    const genre = await Genre.findByIdAndUpdate(req.params.id, req.body, {
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
+
+export const addBooks = catchAsync(async (req, res, next) => {
+  const updatedGenre = await Genre.findByIdAndUpdate(
+    req.params.id,
+    { $push: { books: req.body.books } },
+    {
       new: true,
       runValidators: true,
-    });
-    res.status(200).json({
-      status: 'success',
-      data: {
-        genre,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err,
-    });
-  }
-};
+    },
+  ).populate('books');
 
-export const deleteGenre = async (req, res) => {
-  try {
-    await Genre.findByIdAndDelete(req.params.id);
-    res.status(204).json({
-      status: 'success',
-      data: null,
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err,
-    });
+  if (!updatedGenre) {
+    return next(new AppError('No book found with that Id', 404));
   }
-};
 
-export const addBooks = async (req, res) => {
-  try {
-    const updatedGenre = await Genre.findByIdAndUpdate(
-      req.params.id,
-      { $push: { books: req.body.books } },
-      {
-        new: true,
-        runValidators: true,
-      },
-    ).populate('books');
-    res.status(200).json({
-      status: 'success',
-      data: {
-        genre: updatedGenre,
-      },
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'fail',
-      message: err,
-    });
-  }
-};
+  res.status(200).json({
+    status: 'success',
+    data: {
+      genre: updatedGenre,
+    },
+  });
+});

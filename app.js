@@ -3,6 +3,8 @@ import bookRouter from './routes/api/bookRoutes';
 import genreRouter from './routes/api/genreRoutes';
 import userRouter from './routes/api/userRoutes';
 import roleRouter from './routes/api/roleRoutes';
+import AppError from './utils/appError';
+import globalErrorHandler from './controllers/errorController';
 
 const app = express();
 
@@ -21,11 +23,10 @@ app.get('/', (req, res) => {
   res.end('<h1>Welcome to Bibliophile Hub</h1>');
 });
 
-app.all('*', (req, res) => {
-  res.status(404).json({
-    status: 'fail',
-    message: `Can't find ${req.originalUrl} in this server`,
-  });
+app.all('*', (req, res, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} in this server`, 404));
 });
+
+app.use(globalErrorHandler);
 
 export default app;

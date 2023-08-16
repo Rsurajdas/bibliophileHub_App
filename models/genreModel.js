@@ -8,6 +8,7 @@ const genreSchema = new Schema({
     type: String,
     require: [true, 'A Genre must have a name'],
     unique: true,
+    minlength: 3,
   },
   genre_name_encoded: String,
   books: [
