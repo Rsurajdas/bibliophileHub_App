@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { Schema, model } from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcryptjs';
@@ -40,13 +41,20 @@ const userSchema = new Schema({
     },
   },
   passwordChangedAt: Date,
+  passwordResetToken: String,
+  passwordTokenExpireAt: Date,
 });
 
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
-
   this.password = await bcrypt.hash(this.password, 12);
   this.confirmPassword = undefined;
+  next();
+});
+
+userSchema.pre('save', function (next) {
+  if (!this.isModified('password') || this.isNew) return next();
+  this.passwordChangedAt = Date.now() - 1000;
   next();
 });
 
@@ -65,8 +73,20 @@ userSchema.methods.changedPasswordAfter = function (JwtTimestamp) {
     );
     return JwtTimestamp < changeTimestamp;
   }
-
   return false;
+};
+
+userSchema.methods.createPasswordRestToken = function () {
+  const restToken = crypto.randomBytes(32).toString('hex');
+
+  this.passwordResetToken = crypto
+    .createHash('sha256')
+    .update(restToken)
+    .digest('hex');
+
+  this.passwordTokenExpireAt = Date.now() + 10 * 60 * 1000;
+
+  return restToken;
 };
 
 const User = model('User', userSchema);

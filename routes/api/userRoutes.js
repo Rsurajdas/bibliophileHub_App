@@ -1,11 +1,21 @@
 import express from 'express';
 import User from '../../models/userModel';
-import { signUp, login } from '../../controllers/authController';
+import {
+  signUp,
+  login,
+  forgotPassword,
+  resetPassword,
+  updatePassword,
+  protect,
+} from '../../controllers/authController';
 
 const userRouter = express.Router();
 
 userRouter.post('/signup', signUp);
 userRouter.post('/login', login);
+userRouter.post('/forgotPassword', forgotPassword);
+userRouter.patch('/resetPassword/:token', resetPassword);
+userRouter.patch('/updatePassword', protect, updatePassword);
 
 userRouter.route('/').get(async (req, res) => {
   try {

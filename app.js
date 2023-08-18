@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import bookRouter from './routes/api/bookRoutes';
 import genreRouter from './routes/api/genreRoutes';
 import userRouter from './routes/api/userRoutes';
@@ -8,6 +9,7 @@ import globalErrorHandler from './controllers/errorController';
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
