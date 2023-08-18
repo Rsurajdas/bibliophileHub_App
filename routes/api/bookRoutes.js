@@ -6,11 +6,15 @@ import {
   updateBook,
   deleteBook,
 } from '../../controllers/bookController';
-// import { protect } from '../../controllers/authController';
+import { protect } from '../../controllers/authController';
 
 const bookRouter = express.Router();
 
-bookRouter.route('/').get(getAllBooks).post(createBook);
-bookRouter.route('/:id').get(getBook).patch(updateBook).delete(deleteBook);
+bookRouter.route('/').get(getAllBooks).post(protect, createBook);
+bookRouter
+  .route('/:id')
+  .get(getBook)
+  .patch(protect, updateBook)
+  .delete(protect, deleteBook);
 
 export default bookRouter;

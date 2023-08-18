@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon ./bin"
+    "dev": "nodemon ./bin",
+    "start:prod": "NODE_ENV=production nodemon server.js"
   },
   "author": "Suraj Kumar",
   "license": "ISC",

@@ -1,3 +1,4 @@
+import { promisify } from 'util';
 import User from '../models/userModel';
 import jwt from 'jsonwebtoken';
 import AppError from '../utils/appError';
@@ -40,25 +41,51 @@ export const login = catchAsync(async (req, res, next) => {
   });
 });
 
-export const protect = async (req, res, next) => {
-  try {
-    // Getting token and check if it there
-    let token;
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith('Bearer')
-    ) {
-      token = req.headers.authorization.split(' ')[1];
+export const protect = catchAsync(async (req, res, next) => {
+  let token;
+
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  if (!token) {
+    return next(new AppError('Please login to get access!', 401));
+  }
+
+  const decodedToken = await promisify(jwt.verify)(
+    token,
+    process.env.JWT_SECRET,
+  );
+
+  const verifyUser = await User.findById(decodedToken.id);
+
+  if (!verifyUser) {
+    return next(
+      new AppError('The user belonging to the token dose no longer exit!', 401),
+    );
+  }
+
+  if (verifyUser.changedPasswordAfter(decodedToken.iat)) {
+    return next(
+      new AppError('User recently changed password, Please login agin!'),
+    );
+  }
+
+  req.user = verifyUser;
+  next();
+});
+
+export const restrictedTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError('You do not have permission to preform this action!', 403),
+      );
     }
 
-    if (!token) {
-      throw new Error('Please login to get access!');
-    }
     next();
-  } catch (err) {
-    res.status(401).json({
-      status: 'fail',
-      message: err,
-    });
-  }
+  };
 };
