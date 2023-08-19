@@ -1,8 +1,6 @@
 import { Schema, model } from 'mongoose';
 import slugify from 'slugify';
 
-const { ObjectId } = Schema.Types;
-
 const genreSchema = new Schema({
   genre_name: {
     type: String,
@@ -11,12 +9,6 @@ const genreSchema = new Schema({
     minlength: 3,
   },
   genre_name_encoded: String,
-  books: [
-    {
-      type: ObjectId,
-      ref: 'Book',
-    },
-  ],
 });
 
 genreSchema.pre('save', function (next) {

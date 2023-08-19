@@ -5,18 +5,19 @@ import {
   getGenre,
   updateGenre,
   deleteGenre,
-  addBooks,
 } from '../../controllers/genreController';
 import { protect, restrictedTo } from '../../controllers/authController';
 
 const genreRouter = express.Router();
 
-genreRouter.route('/').get(getAllGenre).post(protect, createGenre);
+genreRouter
+  .route('/')
+  .get(getAllGenre)
+  .post(protect, restrictedTo('admin'), createGenre);
 genreRouter
   .route('/:id')
   .get(getGenre)
   .patch(protect, restrictedTo('admin'), updateGenre)
   .delete(protect, restrictedTo('admin'), deleteGenre);
-genreRouter.route('/:id/add-book').post(protect, addBooks);
 
 export default genreRouter;

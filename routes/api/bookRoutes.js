@@ -10,7 +10,10 @@ import { protect, restrictedTo } from '../../controllers/authController';
 
 const bookRouter = express.Router();
 
-bookRouter.route('/').get(getAllBooks).post(protect, createBook);
+bookRouter
+  .route('/')
+  .get(getAllBooks)
+  .post(protect, restrictedTo('author', 'admin'), createBook);
 bookRouter
   .route('/:id')
   .get(getBook)

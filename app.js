@@ -8,6 +8,8 @@ import genreRouter from './routes/api/genreRoutes';
 import userRouter from './routes/api/userRoutes';
 import AppError from './utils/appError';
 import globalErrorHandler from './controllers/errorController';
+import reviewRouter from './routes/api/reviewRoutes';
+import shelfRouter from './routes/api/shelfRouter';
 
 const app = express();
 
@@ -21,6 +23,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use('/api/v1/books', bookRouter);
 app.use('/api/v1/genres', genreRouter);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/shelf', shelfRouter);
 
 app.get('/', (req, res) => {
   res.writeHead(200, {

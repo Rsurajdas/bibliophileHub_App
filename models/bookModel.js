@@ -1,14 +1,18 @@
 import { Schema, model } from 'mongoose';
 
+const { ObjectId } = Schema.Types;
+
 const bookSchema = new Schema({
   age_group: String,
   amazon_product_url: String,
-  author: String,
+  author: {
+    type: ObjectId,
+    ref: 'User',
+  },
   book_image: String,
-  contributor: { type: String, require: true },
   created_date: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
   description: String,
   price: { type: Number, require: true },
@@ -26,12 +30,26 @@ const bookSchema = new Schema({
   updated_date: {
     type: Date,
   },
+  genres: [
+    {
+      type: ObjectId,
+      ref: 'Genre',
+    },
+  ],
   buy_links: [
     {
       name: String,
       url: String,
     },
   ],
+});
+
+bookSchema.pre(/^find/, function (next) {
+  this.populate({ path: 'author', select: 'name' }).populate({
+    path: 'genres',
+    select: 'genre_name genre_name_encoded',
+  });
+  next();
 });
 
 const Book = model('Book', bookSchema);

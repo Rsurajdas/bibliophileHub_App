@@ -3,8 +3,6 @@ import { Schema, model } from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcryptjs';
 
-const { ObjectId } = Schema.Types;
-
 const userSchema = new Schema({
   name: {
     type: String,
