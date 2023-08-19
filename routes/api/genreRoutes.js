@@ -15,8 +15,8 @@ genreRouter.route('/').get(getAllGenre).post(protect, createGenre);
 genreRouter
   .route('/:id')
   .get(getGenre)
-  .patch(protect, restrictedTo('author', 'admin'), updateGenre)
-  .delete(protect, deleteGenre);
+  .patch(protect, restrictedTo('admin'), updateGenre)
+  .delete(protect, restrictedTo('admin'), deleteGenre);
 genreRouter.route('/:id/add-book').post(protect, addBooks);
 
 export default genreRouter;

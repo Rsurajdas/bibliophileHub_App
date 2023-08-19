@@ -6,7 +6,7 @@ import {
   updateBook,
   deleteBook,
 } from '../../controllers/bookController';
-import { protect } from '../../controllers/authController';
+import { protect, restrictedTo } from '../../controllers/authController';
 
 const bookRouter = express.Router();
 
@@ -14,7 +14,7 @@ bookRouter.route('/').get(getAllBooks).post(protect, createBook);
 bookRouter
   .route('/:id')
   .get(getBook)
-  .patch(protect, updateBook)
-  .delete(protect, deleteBook);
+  .patch(protect, restrictedTo('author', 'admin'), updateBook)
+  .delete(protect, restrictedTo('author', 'admin'), deleteBook);
 
 export default bookRouter;

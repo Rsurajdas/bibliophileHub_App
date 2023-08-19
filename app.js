@@ -1,22 +1,26 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
+// import hpp from 'hpp';
 import bookRouter from './routes/api/bookRoutes';
 import genreRouter from './routes/api/genreRoutes';
 import userRouter from './routes/api/userRoutes';
-import roleRouter from './routes/api/roleRoutes';
 import AppError from './utils/appError';
 import globalErrorHandler from './controllers/errorController';
 
 const app = express();
 
+app.use(helmet());
 app.use(cors());
 app.use(express.json());
+app.use(mongoSanitize());
+// app.use(hpp());
 app.use(express.urlencoded({ extended: false }));
 
 app.use('/api/v1/books', bookRouter);
 app.use('/api/v1/genres', genreRouter);
 app.use('/api/v1/users', userRouter);
-app.use('/api/v1/roles', roleRouter);
 
 app.get('/', (req, res) => {
   res.writeHead(200, {

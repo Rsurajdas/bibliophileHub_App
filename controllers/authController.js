@@ -12,17 +12,29 @@ const signToken = (id) => {
   });
 };
 
+const createSendToken = (user, statusCode, res) => {
+  const token = signToken(user._id);
+  const cookieOptions = {
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    httpOnly: true,
+  };
+
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+
+  res.cookie('token', token, cookieOptions);
+
+  res.status(statusCode).json({
+    status: 'success',
+    userId: user._id,
+    role: user.role,
+    token,
+  });
+};
+
 export const signUp = catchAsync(async (req, res, next) => {
   const newUser = await User.create(req.body);
-  const token = signToken(newUser._id);
 
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: {
-      user: newUser,
-    },
-  });
+  createSendToken(newUser, 201, res);
 });
 
 export const login = catchAsync(async (req, res, next) => {
@@ -35,14 +47,8 @@ export const login = catchAsync(async (req, res, next) => {
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Please provide valid email or password', 401));
   }
-  const token = signToken(user._id);
 
-  res.status(200).json({
-    status: 'success',
-    userId: user._id,
-    role: user.role,
-    token,
-  });
+  createSendToken(user, 200, res);
 });
 
 export const protect = catchAsync(async (req, res, next) => {
@@ -156,13 +162,7 @@ export const resetPassword = catchAsync(async (req, res, next) => {
   user.passwordTokenExpireAt = undefined;
   await user.save();
 
-  const token = signToken(user._id);
-  res.status(200).json({
-    status: 'success',
-    userId: user._id,
-    role: user.role,
-    token,
-  });
+  createSendToken(user, 200, res);
 });
 
 export const updatePassword = catchAsync(async (req, res, next) => {
@@ -176,11 +176,5 @@ export const updatePassword = catchAsync(async (req, res, next) => {
   user.confirmPassword = req.body.confirmPassword;
   await user.save();
 
-  const token = signToken(user._id);
-  res.status(200).json({
-    status: 'success',
-    userId: user._id,
-    role: user.role,
-    token,
-  });
+  createSendToken(user, 200, res);
 });
