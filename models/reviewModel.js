@@ -29,9 +29,6 @@ const reviewSchema = new Schema({
 
 reviewSchema.pre(/^find/, function (next) {
   this.populate({
-    path: 'book',
-    select: 'title',
-  }).populate({
     path: 'user',
     select: 'name photo',
   });

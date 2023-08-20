@@ -5,7 +5,7 @@ import {
 } from '../../controllers/reviewController';
 import { protect, restrictedTo } from '../../controllers/authController';
 
-const reviewRouter = express.Router();
+const reviewRouter = express.Router({ mergeParams: true });
 
 reviewRouter
   .route('/')

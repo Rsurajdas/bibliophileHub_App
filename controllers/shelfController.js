@@ -1,5 +1,7 @@
 import Shelf from '../models/shelfModel';
 import { catchAsync } from '../utils/catchAsync';
+import AppError from '../utils/appError';
+import { deleteOne } from './handlerFunctions';
 
 export const getAllShelf = catchAsync(async (req, res, next) => {
   const shelf = await Shelf.find();
@@ -42,15 +44,4 @@ export const updateShelf = catchAsync(async (req, res, next) => {
   });
 });
 
-export const deleteShelf = catchAsync(async (req, res, next) => {
-  const shelf = await Shelf.findByIdAndDelete(req.params.id);
-
-  if (!shelf) {
-    return next(new AppError('No shelf found with that Id', 404));
-  }
-
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
-});
+export const deleteShelf = deleteOne(Shelf);

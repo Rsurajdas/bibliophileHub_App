@@ -1,6 +1,7 @@
 import Genre from '../models/genreModel';
 import { catchAsync } from './../utils/catchAsync';
 import AppError from './../utils/appError';
+import { deleteOne } from './handlerFunctions';
 
 export const getAllGenre = catchAsync(async (req, res, next) => {
   const genres = await Genre.find();
@@ -56,18 +57,7 @@ export const updateGenre = catchAsync(async (req, res, next) => {
   });
 });
 
-export const deleteGenre = catchAsync(async (req, res, next) => {
-  const genre = await Genre.findByIdAndDelete(req.params.id);
-
-  if (!genre) {
-    return next(new AppError('No book found with that Id', 404));
-  }
-
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
-});
+export const deleteGenre = deleteOne(Genre);
 
 // export const addBooks = catchAsync(async (req, res, next) => {
 //   const updatedGenre = await Genre.findByIdAndUpdate(

@@ -7,8 +7,12 @@ import {
   deleteBook,
 } from '../../controllers/bookController';
 import { protect, restrictedTo } from '../../controllers/authController';
+import reviewRouter from './reviewRoutes';
 
 const bookRouter = express.Router();
+
+// Nested Routes
+bookRouter.use('/:bookId/reviews', reviewRouter);
 
 bookRouter
   .route('/')

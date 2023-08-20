@@ -2,6 +2,7 @@ import Book from '../models/bookModel';
 import ApiFeatures from '../utils/apiFeatures';
 import { catchAsync } from './../utils/catchAsync';
 import AppError from './../utils/appError';
+import { deleteOne } from './handlerFunctions';
 
 export const getAllBooks = catchAsync(async (req, res, next) => {
   const feature = new ApiFeatures(Book, req.query)
@@ -31,7 +32,7 @@ export const createBook = catchAsync(async (req, res, next) => {
 });
 
 export const getBook = catchAsync(async (req, res, next) => {
-  const book = await Book.findById(req.params.id);
+  const book = await Book.findById(req.params.id).populate('reviews');
 
   if (!book) {
     return next(new AppError('No book found with that Id', 404));
@@ -63,15 +64,4 @@ export const updateBook = catchAsync(async (req, res, next) => {
   });
 });
 
-export const deleteBook = catchAsync(async (req, res, next) => {
-  const book = await Book.findByIdAndDelete(req.params.id);
-
-  if (!book) {
-    return next(new AppError('No book found with that Id', 404));
-  }
-
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
-});
+export const deleteBook = deleteOne(Book);
