@@ -12,6 +12,7 @@ import {
   deleteAccount,
   getAllUsers,
   updateProfile,
+  uploadUserPhoto,
 } from '../../controllers/userController';
 
 const userRouter = express.Router();
@@ -23,7 +24,7 @@ userRouter.patch('/resetPassword/:token', resetPassword);
 userRouter.patch('/updatePassword', protect, updatePassword);
 
 userRouter.route('/').get(protect, restrictedTo('admin'), getAllUsers);
-userRouter.patch('/updateProfile', protect, updateProfile);
+userRouter.patch('/updateProfile', protect, uploadUserPhoto, updateProfile);
 userRouter.delete('/deleteAccount', protect, deleteAccount);
 
 export default userRouter;
