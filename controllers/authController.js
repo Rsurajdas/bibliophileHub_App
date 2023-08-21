@@ -23,11 +23,14 @@ const createSendToken = (user, statusCode, res) => {
 
   res.cookie('token', token, cookieOptions);
 
+  user.password = undefined;
+
   res.status(statusCode).json({
     status: 'success',
-    userId: user._id,
-    role: user.role,
     token,
+    data: {
+      user,
+    },
   });
 };
 

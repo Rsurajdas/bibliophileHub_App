@@ -1,4 +1,5 @@
 import multer from 'multer';
+import sharp from 'sharp';
 import User from '../models/userModel';
 import { catchAsync } from '../utils/catchAsync';
 import AppError from '../utils/appError';
@@ -11,15 +12,7 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-const multerStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, './public/image/user');
-  },
-  filename: (req, file, cb) => {
-    const ext = file.mimetype.split('/')[1];
-    cb(null, `user-${req.user._id}-${Date.now()}.${ext}`);
-  },
-});
+const multerStorage = multer.memoryStorage();
 
 const multerFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image')) {
@@ -39,6 +32,20 @@ const upload = multer({
 
 export const uploadUserPhoto = upload.single('photo');
 
+export const resizeUserImage = (req, res, next) => {
+  if (!req.file) return next();
+
+  req.file.filename = `user-${req.user._id}-${Date.now()}.jpeg`;
+
+  sharp(req.file.buffer)
+    .resize(500, 500)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`./public/image/user/${req.file.filename}`);
+
+  next();
+};
+
 export const getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.find();
   res.status(200).json({
@@ -50,14 +57,13 @@ export const getAllUsers = catchAsync(async (req, res, next) => {
 });
 
 export const updateProfile = catchAsync(async (req, res, next) => {
-  console.log(req.file);
-  console.log(req.body);
   if (req.body.password || req.body.confirmPassword) {
     return next(new AppError('Your not allowed to perform this action!', 400));
   }
 
   const filteredBody = filterObj(req.body, 'name', 'email');
-  console.log(filteredBody);
+
+  if (req.file) filteredBody.photo = `/assets/image/user/${req.file.filename}`;
 
   const updatedUser = await User.findByIdAndUpdate(req.user._id, filteredBody, {
     new: true,

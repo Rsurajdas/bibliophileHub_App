@@ -11,6 +11,7 @@ import {
 import {
   deleteAccount,
   getAllUsers,
+  resizeUserImage,
   updateProfile,
   uploadUserPhoto,
 } from '../../controllers/userController';
@@ -24,7 +25,13 @@ userRouter.patch('/resetPassword/:token', resetPassword);
 userRouter.patch('/updatePassword', protect, updatePassword);
 
 userRouter.route('/').get(protect, restrictedTo('admin'), getAllUsers);
-userRouter.patch('/updateProfile', protect, uploadUserPhoto, updateProfile);
+userRouter.patch(
+  '/updateProfile',
+  protect,
+  uploadUserPhoto,
+  resizeUserImage,
+  updateProfile,
+);
 userRouter.delete('/deleteAccount', protect, deleteAccount);
 
 export default userRouter;

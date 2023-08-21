@@ -1,6 +1,8 @@
+import path from 'path';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import compression from 'compression';
 import mongoSanitize from 'express-mongo-sanitize';
 // import hpp from 'hpp';
 import bookRouter from './routes/api/bookRoutes';
@@ -12,6 +14,8 @@ import reviewRouter from './routes/api/reviewRoutes';
 import shelfRouter from './routes/api/shelfRouter';
 
 const app = express();
+
+app.use('/assets', express.static(path.join(__dirname, 'public')));
 
 app.use(helmet());
 app.use(cors());
@@ -32,6 +36,8 @@ app.get('/', (req, res) => {
   });
   res.end('<h1>Welcome to Bibliophile Hub</h1>');
 });
+
+app.use(compression());
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} in this server`, 404));
