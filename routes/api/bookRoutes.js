@@ -5,6 +5,7 @@ import {
   getBook,
   updateBook,
   deleteBook,
+  searchBook,
 } from '../../controllers/bookController';
 import { protect, restrictedTo } from '../../controllers/authController';
 import reviewRouter from './reviewRoutes';
@@ -18,6 +19,7 @@ bookRouter
   .route('/')
   .get(getAllBooks)
   .post(protect, restrictedTo('author', 'admin'), createBook);
+bookRouter.get('/search', searchBook);
 bookRouter
   .route('/:id')
   .get(getBook)

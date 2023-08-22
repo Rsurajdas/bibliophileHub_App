@@ -22,6 +22,7 @@ export const getAllBooks = catchAsync(async (req, res, next) => {
 });
 
 export const createBook = catchAsync(async (req, res, next) => {
+  if (!req.body.author) req.body.author = req.user._id;
   const book = await Book.create(req.body);
   res.status(201).json({
     status: 'success',
@@ -65,3 +66,17 @@ export const updateBook = catchAsync(async (req, res, next) => {
 });
 
 export const deleteBook = deleteOne(Book);
+
+export const searchBook = catchAsync(async (req, res, next) => {
+  const books = await Book.find({
+    $or: [{ title: { $regex: req.query.title } }],
+  });
+
+  res.status(200).json({
+    status: 'success',
+    results: books.length,
+    data: {
+      books,
+    },
+  });
+});

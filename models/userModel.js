@@ -36,7 +36,7 @@ const userSchema = new Schema({
       validator: function (el) {
         return el === this.password;
       },
-      message: 'Passwords are not same!',
+      message: 'Passwords do not match',
     },
   },
   passwordChangedAt: Date,

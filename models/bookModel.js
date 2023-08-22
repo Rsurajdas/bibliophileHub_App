@@ -50,6 +50,8 @@ const bookSchema = new Schema(
   },
 );
 
+bookSchema.indexes({ name: 1, author: 1 });
+
 bookSchema.pre(/^find/, function (next) {
   this.populate({ path: 'author', select: 'name' }).populate({
     path: 'genres',
