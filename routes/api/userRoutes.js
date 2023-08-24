@@ -9,9 +9,12 @@ import {
   restrictedTo,
 } from '../../controllers/authController';
 import {
+  acceptRequest,
   deleteAccount,
+  followUser,
   getAllUsers,
   resizeUserImage,
+  sendRequest,
   updateProfile,
   uploadUserPhoto,
 } from '../../controllers/userController';
@@ -33,5 +36,23 @@ userRouter.patch(
   updateProfile,
 );
 userRouter.delete('/deleteAccount', protect, deleteAccount);
+userRouter.post(
+  '/send-request/:id',
+  protect,
+  restrictedTo('user', 'author'),
+  sendRequest,
+);
+userRouter.post(
+  '/accept-request/:id',
+  protect,
+  restrictedTo('user', 'author'),
+  acceptRequest,
+);
+userRouter.post(
+  '/follow/:id',
+  protect,
+  restrictedTo('user', 'author'),
+  followUser,
+);
 
 export default userRouter;

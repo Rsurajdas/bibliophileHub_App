@@ -86,3 +86,49 @@ export const deleteAccount = catchAsync(async (req, res, next) => {
     data: null,
   });
 });
+
+export const sendRequest = catchAsync(async (req, res, next) => {
+  const userId = req.params.id;
+  const senderUserId = req.user._id;
+
+  await User.findByIdAndUpdate(senderUserId, {
+    $addToSet: { friends: userId },
+  });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Friend request sent successfully',
+  });
+});
+
+export const acceptRequest = catchAsync(async (req, res, next) => {
+  const userId = req.params.id;
+  const receiverId = req.user._id;
+
+  await User.findByIdAndUpdate(receiverId, { $addToSet: { friends: userId } });
+
+  await User.findByIdAndUpdate(userId, { $addToSet: { friends: receiverId } });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Friend request accepted successfully',
+  });
+});
+
+export const followUser = catchAsync(async (req, res, next) => {
+  const userId = req.params.id;
+  const followerUserId = req.user._id;
+
+  await User.findByIdAndUpdate(followerUserId, {
+    $addToSet: { following: userId },
+  });
+
+  await User.findByIdAndUpdate(userId, {
+    $addToSet: { followers: followerUserId },
+  });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'You are now following this user',
+  });
+});
