@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { Schema, model } from 'mongoose';
+import Shelf from './shelfModel';
 import validator from 'validator';
 import bcrypt from 'bcryptjs';
 
@@ -69,6 +70,17 @@ userSchema.pre('save', function (next) {
 
 userSchema.pre(/^find/, function () {
   this.find({ active: { $ne: false } });
+});
+
+userSchema.post('save', async function (doc) {
+  const defaultShelves = ['Read', 'Currently Reading', 'To Read'];
+
+  for (const shelfName of defaultShelves) {
+    await Shelf.create({
+      shelf_name: shelfName,
+      user: doc._id,
+    });
+  }
 });
 
 userSchema.methods.correctPassword = async function (

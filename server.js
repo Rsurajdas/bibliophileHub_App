@@ -11,7 +11,7 @@ mongoose
       useUnifiedTopology: true,
       useCreateIndex: true,
       useFindAndModify: false,
-    }
+    },
   )
   .then(() => console.log('DB connected successfully...'));
 

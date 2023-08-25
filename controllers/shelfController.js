@@ -4,7 +4,7 @@ import AppError from '../utils/appError';
 import { deleteOne } from './handlerFunctions';
 
 export const getAllShelf = catchAsync(async (req, res, next) => {
-  const shelf = await Shelf.find();
+  const shelf = await Shelf.find({ user: req.user._id });
 
   res.status(200).json({
     status: 'success',
@@ -16,6 +16,7 @@ export const getAllShelf = catchAsync(async (req, res, next) => {
 });
 
 export const createShelf = catchAsync(async (req, res, next) => {
+  if (!req.body.user) req.body.user = req.user._id;
   const shelf = await Shelf.create(req.body);
 
   res.status(201).json({

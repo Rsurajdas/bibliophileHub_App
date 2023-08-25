@@ -6,7 +6,6 @@ const shelfSchema = new Schema({
   shelf_name: {
     type: String,
     require: [true, 'A shelf must have a name'],
-    unique: true,
   },
   user: {
     type: ObjectId,
