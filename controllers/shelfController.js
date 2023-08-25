@@ -4,13 +4,13 @@ import AppError from '../utils/appError';
 import { deleteOne } from './handlerFunctions';
 
 export const getAllShelf = catchAsync(async (req, res, next) => {
-  const shelf = await Shelf.find({ user: req.user._id });
+  const shelves = await Shelf.find({ user: req.user._id });
 
   res.status(200).json({
     status: 'success',
-    results: shelf.length,
+    results: shelves.length,
     data: {
-      shelf,
+      shelves,
     },
   });
 });
@@ -46,3 +46,26 @@ export const updateShelf = catchAsync(async (req, res, next) => {
 });
 
 export const deleteShelf = deleteOne(Shelf);
+
+export const addBook = catchAsync(async (req, res, next) => {
+  const userShelf = await Shelf.findOne({
+    user: req.user._id,
+    _id: req.params.shelfId,
+  });
+
+  if (!userShelf) {
+    return next(new AppError('User Shelf not found', 404));
+  }
+
+  if (userShelf.books.includes(req.params.bookId)) {
+    return next(new AppError('Book already exits in the shelf', 400));
+  }
+
+  userShelf.books.push(req.params.bookId);
+  await userShelf.save();
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Book added to the shelf successfully ',
+  });
+});

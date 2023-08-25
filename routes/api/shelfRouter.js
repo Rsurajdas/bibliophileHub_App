@@ -1,6 +1,7 @@
 import express from 'express';
 import { protect, restrictedTo } from '../../controllers/authController';
 import {
+  addBook,
   createShelf,
   deleteShelf,
   getAllShelf,
@@ -18,5 +19,12 @@ shelfRouter
   .route('/:id')
   .patch(protect, restrictedTo('user'), updateShelf)
   .delete(protect, restrictedTo('user'), deleteShelf);
+
+shelfRouter.post(
+  '/add-book/:shelfId/:bookId',
+  protect,
+  restrictedTo('user'),
+  addBook,
+);
 
 export default shelfRouter;
