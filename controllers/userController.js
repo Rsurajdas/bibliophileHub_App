@@ -56,6 +56,21 @@ export const getAllUsers = catchAsync(async (req, res, next) => {
   });
 });
 
+export const getUser = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+
+  if (!user) {
+    return next(new AppError('No user found by this id'), 404);
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      user: user,
+    },
+  });
+});
+
 export const updateProfile = catchAsync(async (req, res, next) => {
   if (req.body.password || req.body.confirmPassword) {
     return next(new AppError('Your not allowed to perform this action!', 400));
@@ -130,5 +145,23 @@ export const followUser = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     message: 'You are now following this user',
+  });
+});
+
+export const unFollowUser = catchAsync(async (req, res, next) => {
+  const userId = req.params.id;
+  const followerUserId = req.user._id;
+
+  await User.findByIdAndUpdate(followerUserId, {
+    $pull: { following: userId },
+  });
+
+  await User.findByIdAndUpdate(userId, {
+    $pull: { followers: followerUserId },
+  });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Unfollowed successfully',
   });
 });

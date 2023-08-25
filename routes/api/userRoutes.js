@@ -13,8 +13,10 @@ import {
   deleteAccount,
   followUser,
   getAllUsers,
+  getUser,
   resizeUserImage,
   sendRequest,
+  unFollowUser,
   updateProfile,
   uploadUserPhoto,
 } from '../../controllers/userController';
@@ -28,6 +30,9 @@ userRouter.patch('/resetPassword/:token', resetPassword);
 userRouter.patch('/updatePassword', protect, updatePassword);
 
 userRouter.route('/').get(protect, restrictedTo('admin'), getAllUsers);
+
+userRouter.get('/get-user', protect, getUser);
+
 userRouter.patch(
   '/updateProfile',
   protect,
@@ -35,24 +40,35 @@ userRouter.patch(
   resizeUserImage,
   updateProfile,
 );
+
 userRouter.delete('/deleteAccount', protect, deleteAccount);
+
 userRouter.post(
   '/send-request/:id',
   protect,
   restrictedTo('user', 'author'),
   sendRequest,
 );
+
 userRouter.post(
   '/accept-request/:id',
   protect,
   restrictedTo('user', 'author'),
   acceptRequest,
 );
+
 userRouter.post(
   '/follow/:id',
   protect,
   restrictedTo('user', 'author'),
   followUser,
+);
+
+userRouter.post(
+  '/unfollow/:id',
+  protect,
+  restrictedTo('user', 'author'),
+  unFollowUser,
 );
 
 export default userRouter;

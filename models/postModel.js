@@ -4,6 +4,7 @@ const { ObjectId } = Schema.Types;
 
 const postSchema = new Schema({
   user: { type: ObjectId, ref: 'User' },
+  book: { type: ObjectId, ref: 'Book' },
   text: String,
   createdAt: { type: Date, default: Date.now },
   likes: [{ type: ObjectId, ref: 'User' }],
@@ -11,7 +12,7 @@ const postSchema = new Schema({
     {
       user: { type: ObjectId, ref: 'User' },
       text: String,
-      createdAt: Date,
+      createdAt: { type: Date, default: Date.now },
     },
   ],
 });
