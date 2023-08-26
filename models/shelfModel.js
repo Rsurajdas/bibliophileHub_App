@@ -20,10 +20,10 @@ const shelfSchema = new Schema({
   ],
 });
 
-shelfSchema.pre(/^find/, function (next) {
-  this.populate({ path: 'books' });
-  next();
-});
+// shelfSchema.pre(/^find/, function (next) {
+//   this.populate({ path: 'books' });
+//   next();
+// });
 
 const Shelf = model('Shelf', shelfSchema);
 
