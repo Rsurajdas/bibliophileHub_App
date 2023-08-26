@@ -17,8 +17,15 @@ export const getAllShelf = catchAsync(async (req, res, next) => {
 });
 
 export const createShelf = catchAsync(async (req, res, next) => {
-  if (!req.body.user) req.body.user = req.user._id;
-  const shelf = await Shelf.create(req.body);
+  if (!req.body.shelf_name) {
+    return next(new AppError('Shelf name cant be empty', 405));
+  }
+  const shelf = new Shelf({
+    shelf_name: req.body.shelf_name,
+    user: req.user._id,
+  });
+
+  await shelf.save();
 
   res.status(201).json({
     status: 'success',
@@ -61,9 +68,39 @@ export const updateShelf = catchAsync(async (req, res, next) => {
   });
 });
 
-export const deleteShelf = deleteOne(Shelf);
+export const deleteShelf = catchAsync(async (req, res, next) => {
+  const shelf = await Shelf.findOne({
+    _id: req.params.id,
+    user: req.user._id,
+  });
+
+  if (!shelf) {
+    return next(new AppError('No shelf found by this id', 404));
+  }
+
+  await shelf.remove();
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
 
 export const addBook = catchAsync(async (req, res, next) => {
+  const userShelves = await Shelf.find({ user: req.user._id });
+
+  if (!userShelves) {
+    return next(new AppError('No shelves found for the user', 404));
+  }
+
+  for (const shelf of userShelves) {
+    if (shelf.books.includes(req.params.bookId)) {
+      return next(
+        new AppError('Book already exists in a shelf for this user', 400),
+      );
+    }
+  }
+
   const userShelf = await Shelf.findOne({
     user: req.user._id,
     _id: req.params.shelfId,

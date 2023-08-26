@@ -16,14 +16,10 @@ const shelfSchema = new Schema({
     {
       type: ObjectId,
       ref: 'Book',
+      unique: true,
     },
   ],
 });
-
-// shelfSchema.pre(/^find/, function (next) {
-//   this.populate({ path: 'books' });
-//   next();
-// });
 
 const Shelf = model('Shelf', shelfSchema);
 
