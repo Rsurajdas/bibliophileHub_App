@@ -54,8 +54,8 @@ bookSchema.indexes({ name: 1, author: 1 });
 
 bookSchema.pre(/^find/, function (next) {
   this.populate({ path: 'author', select: 'name photo followers' }).populate({
-    path: 'genres',
-    select: 'genre_name genre_name_encoded',
+    path: 'shelf',
+    select: 'shelf_name -books',
   });
   next();
 });
@@ -63,6 +63,12 @@ bookSchema.pre(/^find/, function (next) {
 bookSchema.virtual('reviews', {
   ref: 'Review',
   foreignField: 'book',
+  localField: '_id',
+});
+
+bookSchema.virtual('shelf', {
+  ref: 'Shelf',
+  foreignField: 'books',
   localField: '_id',
 });
 

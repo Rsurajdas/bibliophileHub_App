@@ -8,10 +8,15 @@ export const getAllBooks = catchAsync(async (req, res, next) => {
   const feature = new ApiFeatures(Book, req.query)
     .filter()
     .sort()
-    .limitFields()
-    .pagination();
+    .limitFields();
 
-  const books = await feature.query;
+  const books = await feature.query
+    .populate({ path: 'author', select: 'name photo followers' })
+    .populate({
+      path: 'genres',
+      select: 'genre_name genre_name_encoded',
+    });
+
   res.status(200).json({
     status: 'success',
     results: books.length,
@@ -33,7 +38,14 @@ export const createBook = catchAsync(async (req, res, next) => {
 });
 
 export const getBook = catchAsync(async (req, res, next) => {
-  const book = await Book.findById(req.params.id).populate('reviews');
+  const book = await Book.findById(req.params.id)
+    .populate({ path: 'author', select: 'name photo followers' })
+    .populate({
+      path: 'genres',
+      select: 'genre_name genre_name_encoded',
+    })
+    .populate('reviews')
+    .populate('shelves');
 
   if (!book) {
     return next(new AppError('No book found with that Id', 404));
@@ -78,5 +90,53 @@ export const searchBook = catchAsync(async (req, res, next) => {
     data: {
       books,
     },
+  });
+});
+
+export const getAllBooksByGenre = catchAsync(async (req, res, next) => {
+  const books = await Book.find({ genres: req.params.genreId });
+
+  res.status(200).json({
+    status: 'success',
+    results: books.length,
+    data: {
+      books,
+    },
+  });
+});
+
+export const aggregationBook = catchAsync(async (req, res, next) => {
+  const aggregatedBooks = await Book.aggregate([
+    {
+      $lookup: {
+        from: 'genres',
+        localField: 'genres',
+        foreignField: '_id',
+        as: 'genres',
+      },
+    },
+    {
+      $unwind: '$genres',
+    },
+    {
+      $group: {
+        _id: '$genres._id',
+        genre_name: { $first: '$genres.genre_name' },
+        books: { $push: '$$ROOT' },
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        genre_name: 1,
+        books: { $slice: ['$books', 5] },
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    results: aggregatedBooks.length,
+    data: aggregatedBooks,
   });
 });

@@ -58,25 +58,3 @@ export const updateGenre = catchAsync(async (req, res, next) => {
 });
 
 export const deleteGenre = deleteOne(Genre);
-
-// export const addBooks = catchAsync(async (req, res, next) => {
-//   const updatedGenre = await Genre.findByIdAndUpdate(
-//     req.params.id,
-//     { $push: { books: req.body.books } },
-//     {
-//       new: true,
-//       runValidators: true,
-//     },
-//   ).populate('books');
-
-//   if (!updatedGenre) {
-//     return next(new AppError('No book found with that Id', 404));
-//   }
-
-//   res.status(200).json({
-//     status: 'success',
-//     data: {
-//       genre: updatedGenre,
-//     },
-//   });
-// });

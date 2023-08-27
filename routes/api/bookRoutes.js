@@ -6,6 +6,8 @@ import {
   updateBook,
   deleteBook,
   searchBook,
+  getAllBooksByGenre,
+  aggregationBook,
 } from '../../controllers/bookController';
 import { protect, restrictedTo } from '../../controllers/authController';
 import reviewRouter from './reviewRoutes';
@@ -25,5 +27,7 @@ bookRouter
   .get(getBook)
   .patch(protect, restrictedTo('author', 'admin'), updateBook)
   .delete(protect, restrictedTo('author', 'admin'), deleteBook);
+bookRouter.get('/get-books/:genreId', getAllBooksByGenre);
+bookRouter.get('/genres/grouped-by-genres', aggregationBook);
 
 export default bookRouter;
