@@ -14,9 +14,17 @@ const shelfSchema = new Schema({
   },
   books: [
     {
-      type: ObjectId,
-      ref: 'Book',
-      unique: true,
+      book: {
+        type: ObjectId,
+        ref: 'Book',
+        unique: true,
+      },
+      readingProgress: {
+        type: Number,
+        min: 0,
+        max: 100,
+        default: 0,
+      },
     },
   ],
 });

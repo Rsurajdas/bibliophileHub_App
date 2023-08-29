@@ -1,4 +1,5 @@
 import Review from '../models/reviewModel';
+import AppError from '../utils/appError';
 import { catchAsync } from '../utils/catchAsync';
 import { deleteOne } from './handlerFunctions';
 
@@ -31,3 +32,43 @@ export const createReview = catchAsync(async (req, res, next) => {
 });
 
 export const deleteReview = deleteOne(Review);
+
+export const getReviewByUserId = catchAsync(async (req, res, next) => {
+  const review = await Review.findOne({
+    user: req.user._id,
+    book: req.params.bookId,
+  }).select('rating review');
+
+  if (!review) {
+    return next(new AppError('No review found by this Id', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      review,
+    },
+  });
+});
+
+export const updateReviewByUserId = catchAsync(async (req, res, next) => {
+  const review = await Review.findOneAndUpdate(
+    {
+      user: req.user._id,
+      book: req.params.bookId,
+    },
+    req.body,
+    { new: true },
+  ).select('rating review');
+
+  if (!review) {
+    return next(new AppError('No review found by this Id', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      review,
+    },
+  });
+});

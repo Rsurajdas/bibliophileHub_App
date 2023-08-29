@@ -6,9 +6,11 @@ import {
   deleteShelf,
   getAllBooksFromUserShelves,
   getAllShelf,
+  getBooksFromCurrentlyReadingShelf,
   getShelf,
-  getShelvesContainingBook,
   removeBook,
+  updateBookShelf,
+  updateReadingProgress,
   updateShelf,
 } from '../../controllers/shelfController';
 
@@ -25,7 +27,6 @@ shelfRouter.get(
   restrictedTo('user'),
   getAllBooksFromUserShelves,
 );
-
 shelfRouter
   .route('/:id')
   .get(protect, restrictedTo('user'), getShelf)
@@ -38,7 +39,6 @@ shelfRouter.post(
   restrictedTo('user'),
   addBook,
 );
-
 shelfRouter.post(
   '/remove-book/:shelfId/:bookId',
   protect,
@@ -46,11 +46,30 @@ shelfRouter.post(
   removeBook,
 );
 
+// shelfRouter.get(
+//   '/get-shelves-by-book/:bookId',
+//   protect,
+//   restrictedTo('user'),
+//   getShelvesContainingBook,
+// );
+
 shelfRouter.get(
-  '/get-shelves-by-book/:bookId',
+  '/get-currently-reading/books',
   protect,
   restrictedTo('user'),
-  getShelvesContainingBook,
+  getBooksFromCurrentlyReadingShelf,
+);
+shelfRouter.patch(
+  '/update-progress/:bookId',
+  protect,
+  restrictedTo('user'),
+  updateReadingProgress,
+);
+shelfRouter.patch(
+  '/move-book/:bookId',
+  protect,
+  restrictedTo('user'),
+  updateBookShelf,
 );
 
 export default shelfRouter;
