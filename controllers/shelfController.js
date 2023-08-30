@@ -2,6 +2,7 @@ import Shelf from '../models/shelfModel';
 import Book from '../models/bookModel';
 import { catchAsync } from '../utils/catchAsync';
 import AppError from '../utils/appError';
+import Post from '../models/postModel';
 
 export const getAllShelf = catchAsync(async (req, res, next) => {
   const shelves = await Shelf.find({ user: req.user._id });
@@ -38,7 +39,6 @@ export const getShelf = catchAsync(async (req, res, next) => {
   const shelf = await Shelf.findById(req.params.id).populate({
     path: 'books.book',
   });
-
   if (!shelf) {
     return next(new AppError('No shelf found with that Id', 404));
   }
@@ -124,11 +124,49 @@ export const addBook = catchAsync(async (req, res, next) => {
   userShelf.books.push({ book: req.params.bookId, readingProgress: 0 });
   await userShelf.save();
 
+  const post = new Post({
+    user: req.user._id,
+    book: req.params.bookId,
+    text: `${req.user.name} added a book to the ${userShelf.shelf_name} shelf`,
+  });
+  await post.save();
+
   res.status(200).json({
     status: 'success',
     message: 'Book added to the shelf successfully ',
   });
 });
+
+// export const getAllBooksFromUserShelves = catchAsync(async (req, res, next) => {
+//   const userShelves = await Shelf.find({ user: req.user._id });
+
+//   if (!userShelves) {
+//     return next(new AppError('No shelves found for the user', 404));
+//   }
+
+//   const bookObjects = userShelves.flatMap((shelf) => shelf.books);
+
+//   const bookIds = bookObjects.map((bookObj) => bookObj.book);
+
+//   const books = await Book.find({ _id: { $in: bookIds } });
+
+//   const booksWithProgress = bookObjects.map((bookObj) => {
+//     const bookId = bookObj.book.toString();
+//     const book = books.find((book) => book._id.toString() === bookId);
+//     return {
+//       book,
+//       readingProgress: bookObj.readingProgress,
+//     };
+//   });
+
+//   res.status(200).json({
+//     status: 'success',
+//     results: booksWithProgress.length,
+//     data: {
+//       books: booksWithProgress,
+//     },
+//   });
+// });
 
 export const getAllBooksFromUserShelves = catchAsync(async (req, res, next) => {
   const userShelves = await Shelf.find({ user: req.user._id });
@@ -141,22 +179,37 @@ export const getAllBooksFromUserShelves = catchAsync(async (req, res, next) => {
 
   const bookIds = bookObjects.map((bookObj) => bookObj.book);
 
+  // Fetch the books from the database
   const books = await Book.find({ _id: { $in: bookIds } });
 
-  const booksWithProgress = bookObjects.map((bookObj) => {
-    const bookId = bookObj.book.toString();
-    const book = books.find((book) => book._id.toString() === bookId);
-    return {
-      book,
-      readingProgress: bookObj.readingProgress,
-    };
-  });
+  // Fetch the shelves that belong to the current user and contain each book
+  const booksWithShelves = await Promise.all(
+    books.map(async (book) => {
+      const shelvesContainingBook = await Shelf.find({
+        user: req.user._id,
+        'books.book': book._id,
+      });
+
+      const readingProgress = bookObjects.find(
+        (bookObj) => bookObj.book.toString() === book._id.toString(),
+      ).readingProgress;
+
+      return {
+        book,
+        shelves: shelvesContainingBook.map((shelf) => ({
+          shelf_id: shelf._id,
+          shelf_name: shelf.shelf_name,
+        })),
+        readingProgress,
+      };
+    }),
+  );
 
   res.status(200).json({
     status: 'success',
-    results: booksWithProgress.length,
+    results: booksWithShelves.length,
     data: {
-      books: booksWithProgress,
+      books: booksWithShelves,
     },
   });
 });
@@ -171,15 +224,15 @@ export const removeBook = catchAsync(async (req, res, next) => {
     return next(new AppError('No shelves found for the user', 404));
   }
 
-  const bookIndexToRemove = userShelf.books.findIndex(
-    (bookObj) => bookObj.book.toString() === req.params.bookId,
+  const updatedBooks = userShelf.books.filter(
+    (bookObj) => bookObj.book.toString() !== req.params.bookId,
   );
 
-  if (bookIndexToRemove === -1) {
+  if (updatedBooks.length === userShelf.books.length) {
     return next(new AppError('Book not found in the shelf', 404));
   }
 
-  userShelf.books.splice(bookIndexToRemove, 1);
+  userShelf.books = updatedBooks;
   await userShelf.save();
 
   res.status(200).json({
@@ -188,20 +241,23 @@ export const removeBook = catchAsync(async (req, res, next) => {
   });
 });
 
-// export const getShelvesContainingBook = catchAsync(async (req, res, next) => {
-//   const shelvesWithBook = await Shelf.find({ 'books.book': req.params.bookId });
+export const getShelvesContainingBook = catchAsync(async (req, res, next) => {
+  const shelvesWithBook = await Shelf.find({
+    user: req.user._id,
+    'books.book': req.params.bookId,
+  });
 
-//   if (!shelvesWithBook || shelvesWithBook.length === 0) {
-//     return next(new AppError('No shelves found containing the book', 404));
-//   }
+  if (!shelvesWithBook || shelvesWithBook.length === 0) {
+    return next(new AppError('No shelves found containing the book', 404));
+  }
 
-//   res.status(200).json({
-//     status: 'success',
-//     data: {
-//       shelves: shelvesWithBook,
-//     },
-//   });
-// });
+  res.status(200).json({
+    status: 'success',
+    data: {
+      shelves: shelvesWithBook,
+    },
+  });
+});
 
 export const getBooksFromCurrentlyReadingShelf = catchAsync(
   async (req, res, next) => {
@@ -238,7 +294,9 @@ export const updateReadingProgress = catchAsync(async (req, res, next) => {
   });
 
   if (!currentShelf) {
-    return next(new AppError('User does not have a default shelf', 404));
+    return next(
+      new AppError('User does not have a currently reading shelf', 404),
+    );
   }
 
   const bookIndexToUpdate = currentShelf.books.findIndex(
@@ -246,7 +304,9 @@ export const updateReadingProgress = catchAsync(async (req, res, next) => {
   );
 
   if (bookIndexToUpdate === -1) {
-    return next(new AppError('Book not found in the default shelf', 404));
+    return next(
+      new AppError('Book not found in the currently reading shelf', 404),
+    );
   }
 
   currentShelf.books[bookIndexToUpdate].readingProgress =

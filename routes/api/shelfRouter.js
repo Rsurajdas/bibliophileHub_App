@@ -12,6 +12,7 @@ import {
   updateBookShelf,
   updateReadingProgress,
   updateShelf,
+  getShelvesContainingBook,
 } from '../../controllers/shelfController';
 
 const shelfRouter = express.Router();
@@ -46,12 +47,12 @@ shelfRouter.post(
   removeBook,
 );
 
-// shelfRouter.get(
-//   '/get-shelves-by-book/:bookId',
-//   protect,
-//   restrictedTo('user'),
-//   getShelvesContainingBook,
-// );
+shelfRouter.get(
+  '/get-shelves-by-book/:bookId',
+  protect,
+  restrictedTo('user'),
+  getShelvesContainingBook,
+);
 
 shelfRouter.get(
   '/get-currently-reading/books',

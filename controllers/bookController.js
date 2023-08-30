@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import Book from '../models/bookModel';
 import ApiFeatures from '../utils/apiFeatures';
 import { catchAsync } from './../utils/catchAsync';
@@ -46,17 +45,22 @@ export const getBook = catchAsync(async (req, res, next) => {
       path: 'genres',
       select: 'genre_name genre_name_encoded',
     })
-    .populate('reviews')
     .populate('shelves');
 
   if (!book) {
     return next(new AppError('No book found with that Id', 404));
   }
 
+  const review = await Review.find({
+    book: book._id,
+    user: req.user._id,
+  }).populate('user', 'name photo');
+
   res.status(200).json({
     status: 'success',
     data: {
       book,
+      review,
     },
   });
 });

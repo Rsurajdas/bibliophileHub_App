@@ -24,7 +24,7 @@ bookRouter
 bookRouter.get('/search', searchBook);
 bookRouter
   .route('/:id')
-  .get(getBook)
+  .get(protect, getBook)
   .patch(protect, restrictedTo('author', 'admin'), updateBook)
   .delete(protect, restrictedTo('author', 'admin'), deleteBook);
 bookRouter.get('/get-books/:genreId', getAllBooksByGenre);
