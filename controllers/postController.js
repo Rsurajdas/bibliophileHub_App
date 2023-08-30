@@ -63,3 +63,59 @@ export const likeAPost = catchAsync(async (req, res, next) => {
     numLikes: post.likes.length,
   });
 });
+
+export const unlikeAPost = catchAsync(async (req, res, next) => {
+  const post = await Post.findById(req.params.postId);
+
+  if (!post) {
+    return next(new AppError('Post not found', 404));
+  }
+
+  if (!post.likes.includes(req.user._id)) {
+    return next(new AppError('You have not liked this post', 404));
+  }
+
+  post.likes = post.likes.filter(
+    (like) => like.toString() !== req.user._id.toString(),
+  );
+
+  await post.save();
+
+  res.status(200).json({
+    status: 200,
+    post,
+    message: 'Like removed successfully',
+    numLikes: post.likes.length,
+  });
+});
+
+export const addComment = catchAsync(async (req, res, next) => {
+  const post = await Post.findById(req.params.postId).populate(
+    'user book comments.user',
+  );
+
+  if (!post) {
+    return next(new AppError('Post not found', 404));
+  }
+
+  const comment = {
+    user: req.user._id,
+    text: req.body.text,
+  };
+
+  post.comments.push(comment);
+  await post.save();
+
+  await post
+    .populate({
+      path: 'comments.user',
+      select: 'name photo',
+    })
+    .execPopulate();
+
+  res.status(200).json({
+    status: 'success',
+    post,
+    message: 'Comment added successfully',
+  });
+});

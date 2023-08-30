@@ -1,9 +1,11 @@
 import express from 'express';
 import { protect, restrictedTo } from '../../controllers/authController';
 import {
+  addComment,
   getAllUserPost,
   getSocialPosts,
   likeAPost,
+  unlikeAPost,
 } from '../../controllers/postController';
 
 const postRouter = express.Router();
@@ -23,6 +25,18 @@ postRouter.post(
   protect,
   restrictedTo('user', 'author'),
   likeAPost,
+);
+postRouter.post(
+  '/:postId/unlike',
+  protect,
+  restrictedTo('user', 'author'),
+  unlikeAPost,
+);
+postRouter.post(
+  '/:postId/add-comment',
+  protect,
+  restrictedTo('user'),
+  addComment,
 );
 
 export default postRouter;
