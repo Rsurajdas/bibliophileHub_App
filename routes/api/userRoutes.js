@@ -14,7 +14,10 @@ import {
   followUser,
   getAllUsers,
   getUser,
+  getUserFriends,
+  removeFriend,
   resizeUserImage,
+  searchMember,
   sendRequest,
   unFollowUser,
   updateProfile,
@@ -30,9 +33,7 @@ userRouter.patch('/resetPassword/:token', resetPassword);
 userRouter.patch('/updatePassword', protect, updatePassword);
 
 userRouter.route('/').get(protect, restrictedTo('admin'), getAllUsers);
-
 userRouter.get('/get-user', protect, getUser);
-
 userRouter.patch(
   '/updateProfile',
   protect,
@@ -40,35 +41,48 @@ userRouter.patch(
   resizeUserImage,
   updateProfile,
 );
-
 userRouter.delete('/deleteAccount', protect, deleteAccount);
-
 userRouter.post(
   '/send-request/:id',
   protect,
   restrictedTo('user', 'author'),
   sendRequest,
 );
-
 userRouter.post(
   '/accept-request/:id',
   protect,
   restrictedTo('user', 'author'),
   acceptRequest,
 );
-
 userRouter.post(
   '/follow/:id',
   protect,
   restrictedTo('user', 'author'),
   followUser,
 );
-
 userRouter.post(
   '/unfollow/:id',
   protect,
   restrictedTo('user', 'author'),
   unFollowUser,
+);
+userRouter.get(
+  '/search-member',
+  protect,
+  restrictedTo('user', 'author'),
+  searchMember,
+);
+userRouter.get(
+  '/friends',
+  protect,
+  restrictedTo('user', 'author'),
+  getUserFriends,
+);
+userRouter.delete(
+  '/remove-friend/:friendId',
+  protect,
+  restrictedTo('user'),
+  removeFriend,
 );
 
 export default userRouter;

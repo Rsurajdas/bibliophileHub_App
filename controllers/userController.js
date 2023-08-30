@@ -57,7 +57,7 @@ export const getAllUsers = catchAsync(async (req, res, next) => {
 });
 
 export const getUser = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.user.id);
+  const user = await User.findById(req.user.id).populate('following');
 
   if (!user) {
     return next(new AppError('No user found by this id'), 404);
@@ -67,6 +67,24 @@ export const getUser = catchAsync(async (req, res, next) => {
     status: 'success',
     data: {
       user: user,
+    },
+  });
+});
+
+export const getUserFriends = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.user._id).populate(
+    'friends',
+    'name email photo',
+  );
+
+  if (!user) {
+    return next(new AppError('User not found', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      friends: user.friends,
     },
   });
 });
@@ -163,5 +181,46 @@ export const unFollowUser = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     message: 'Unfollowed successfully',
+  });
+});
+
+export const searchMember = catchAsync(async (req, res, next) => {
+  const { query } = req.query;
+
+  if (!query) {
+    return next(new AppError('Please provide a search query', 400));
+  }
+  const users = await User.find({
+    $or: [
+      { name: { $regex: query, $options: 'i' } },
+      { email: { $regex: query, $options: 'i' } },
+    ],
+  });
+  res.status(200).json({
+    status: 'success',
+    results: users.length,
+    data: {
+      users,
+    },
+  });
+});
+
+export const removeFriend = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.user._id);
+  const friend = await User.findById(req.params.friendId);
+
+  if (!user || !friend) {
+    return next(new AppError('User or friend not found', 404));
+  }
+
+  user.friends.pull(req.params.friendId);
+  await user.save();
+
+  friend.friends.pull(req.user._id);
+  await friend.save();
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Friend removed successfully',
   });
 });

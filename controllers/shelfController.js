@@ -3,6 +3,7 @@ import Book from '../models/bookModel';
 import { catchAsync } from '../utils/catchAsync';
 import AppError from '../utils/appError';
 import Post from '../models/postModel';
+import Review from '../models/reviewModel';
 
 export const getAllShelf = catchAsync(async (req, res, next) => {
   const shelves = await Shelf.find({ user: req.user._id });
@@ -179,10 +180,8 @@ export const getAllBooksFromUserShelves = catchAsync(async (req, res, next) => {
 
   const bookIds = bookObjects.map((bookObj) => bookObj.book);
 
-  // Fetch the books from the database
   const books = await Book.find({ _id: { $in: bookIds } });
 
-  // Fetch the shelves that belong to the current user and contain each book
   const booksWithShelves = await Promise.all(
     books.map(async (book) => {
       const shelvesContainingBook = await Shelf.find({
@@ -194,6 +193,12 @@ export const getAllBooksFromUserShelves = catchAsync(async (req, res, next) => {
         (bookObj) => bookObj.book.toString() === book._id.toString(),
       ).readingProgress;
 
+      // Retrieve the user's review for the current book
+      const userReview = await Review.findOne({
+        user: req.user._id,
+        book: book._id,
+      });
+
       return {
         book,
         shelves: shelvesContainingBook.map((shelf) => ({
@@ -201,6 +206,7 @@ export const getAllBooksFromUserShelves = catchAsync(async (req, res, next) => {
           shelf_name: shelf.shelf_name,
         })),
         readingProgress,
+        review: userReview,
       };
     }),
   );

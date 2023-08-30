@@ -12,7 +12,7 @@ export const getAllUserPost = catchAsync(async (req, res, next) => {
     status: 'success',
     results: userPosts.length,
     data: {
-      post: userPosts,
+      posts: userPosts,
     },
   });
 });
