@@ -55,7 +55,7 @@ shelfRouter.get(
 );
 
 shelfRouter.get(
-  '/get-currently-reading/books',
+  '/get-currently-reading/books/:userId',
   protect,
   restrictedTo('user'),
   getBooksFromCurrentlyReadingShelf,

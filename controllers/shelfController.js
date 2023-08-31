@@ -268,7 +268,7 @@ export const getShelvesContainingBook = catchAsync(async (req, res, next) => {
 export const getBooksFromCurrentlyReadingShelf = catchAsync(
   async (req, res, next) => {
     const currentShelf = await Shelf.findOne({
-      user: req.user._id,
+      user: req.params.userId,
       shelf_name: 'Currently Reading',
     }).populate('books.book');
 

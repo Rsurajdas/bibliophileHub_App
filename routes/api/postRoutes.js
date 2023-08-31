@@ -10,10 +10,14 @@ import {
 
 const postRouter = express.Router();
 
-postRouter
-  .route('/')
-  .get(protect, restrictedTo('user', 'author'), getAllUserPost);
+// postRouter.get('/', protect, restrictedTo('user', 'author'), getAllUserPost);
 
+postRouter.get(
+  '/get-posts/:userId',
+  protect,
+  restrictedTo('user', 'author'),
+  getAllUserPost,
+);
 postRouter.get(
   '/social-posts',
   protect,

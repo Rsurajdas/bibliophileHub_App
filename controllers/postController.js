@@ -4,7 +4,7 @@ import { catchAsync } from '../utils/catchAsync';
 import AppError from '../utils/appError';
 
 export const getAllUserPost = catchAsync(async (req, res, next) => {
-  const userPosts = await Post.find({ user: req.user._id }).populate(
+  const userPosts = await Post.find({ user: req.params.userId }).populate(
     'user book likes comments.user',
   );
 

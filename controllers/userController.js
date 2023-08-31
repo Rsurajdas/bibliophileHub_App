@@ -57,7 +57,7 @@ export const getAllUsers = catchAsync(async (req, res, next) => {
 });
 
 export const getUser = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.user.id).populate('following');
+  const user = await User.findById(req.params.userId).populate('following');
 
   if (!user) {
     return next(new AppError('No user found by this id'), 404);
@@ -72,7 +72,7 @@ export const getUser = catchAsync(async (req, res, next) => {
 });
 
 export const getUserFriends = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.user._id).populate(
+  const user = await User.findById(req.params.userId).populate(
     'friends',
     'name email photo',
   );
@@ -85,6 +85,24 @@ export const getUserFriends = catchAsync(async (req, res, next) => {
     status: 'success',
     data: {
       friends: user.friends,
+    },
+  });
+});
+
+export const getUserFollowing = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.params.userId).populate(
+    'following',
+    'name email photo',
+  );
+
+  if (!user) {
+    return next(new AppError('User not found', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      following: user.following,
     },
   });
 });

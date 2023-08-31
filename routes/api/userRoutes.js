@@ -14,6 +14,7 @@ import {
   followUser,
   getAllUsers,
   getUser,
+  getUserFollowing,
   getUserFriends,
   removeFriend,
   resizeUserImage,
@@ -33,7 +34,7 @@ userRouter.patch('/resetPassword/:token', resetPassword);
 userRouter.patch('/updatePassword', protect, updatePassword);
 
 userRouter.route('/').get(protect, restrictedTo('admin'), getAllUsers);
-userRouter.get('/get-user', protect, getUser);
+userRouter.get('/get-user/:userId', protect, getUser);
 userRouter.patch(
   '/updateProfile',
   protect,
@@ -73,10 +74,16 @@ userRouter.get(
   searchMember,
 );
 userRouter.get(
-  '/friends',
+  '/friends/:userId',
   protect,
   restrictedTo('user', 'author'),
   getUserFriends,
+);
+userRouter.get(
+  '/following/:userId',
+  protect,
+  restrictedTo('user', 'author'),
+  getUserFollowing,
 );
 userRouter.delete(
   '/remove-friend/:friendId',
