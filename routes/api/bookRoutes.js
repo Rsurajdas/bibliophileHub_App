@@ -140,6 +140,8 @@ export default bookRouter;
  *   post:
  *     summary: Create a new book
  *     tags: [Books]
+ *     security:
+ *      - Authorization: []
  *     requestBody:
  *       required: true
  *       content:
