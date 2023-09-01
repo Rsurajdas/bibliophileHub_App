@@ -4,9 +4,9 @@ import { catchAsync } from '../utils/catchAsync';
 import AppError from '../utils/appError';
 
 export const getAllUserPost = catchAsync(async (req, res, next) => {
-  const userPosts = await Post.find({ user: req.params.userId }).populate(
-    'user book likes comments.user',
-  );
+  const userPosts = await Post.find({ user: req.params.userId })
+    .populate('book likes comments.user')
+    .populate({ path: 'user', select: 'name photo' });
 
   res.status(200).json({
     status: 'success',
@@ -29,9 +29,10 @@ export const getSocialPosts = catchAsync(async (req, res, next) => {
 
   const socialUsers = [...friends, ...followers, ...following];
 
-  const posts = await Post.find({ user: { $in: socialUsers } }).populate(
-    'user book comments.user',
-  );
+  const posts = await Post.find({ user: { $in: socialUsers } })
+    .populate('book ')
+    .populate({ path: 'user', select: 'name photo' })
+    .populate({ path: 'comments.user', select: 'name photo' });
 
   res.status(200).json({
     status: 'success',

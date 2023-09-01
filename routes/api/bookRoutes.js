@@ -54,7 +54,7 @@ export default bookRouter;
  *         author:
  *           type: object
  *           properties:
- *              id:
+ *              _id:
  *                type: string
  *              name:
  *                type: string
@@ -91,7 +91,7 @@ export default bookRouter;
  *           items:
  *             type: object
  *             properties:
- *                id:
+ *                _id:
  *                  type: string
  *                genre_name:
  *                  type: string
