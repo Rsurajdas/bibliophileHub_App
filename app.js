@@ -13,8 +13,44 @@ import globalErrorHandler from './controllers/errorController';
 import reviewRouter from './routes/api/reviewRoutes';
 import shelfRouter from './routes/api/shelfRouter';
 import postRouter from './routes/api/postRoutes';
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 
 const app = express();
+
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    servers: [
+      {
+        url: 'http://localhost:3000/',
+      },
+    ],
+    info: {
+      title: 'Bibliophile Hub',
+      version: '1.0',
+      description:
+        "Find and read more books you'll love, and keep track of the books you want to read.",
+      contact: {
+        name: 'Suraj Kumar',
+        email: 'surajkumar@gmail.com',
+      },
+    },
+    components: {
+      securitySchemes: {
+        Authorization: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          value: 'Bearer <JWT token here>',
+        },
+      },
+    },
+  },
+  apis: ['./routes/api/*.js'],
+};
+
+const swaggerDoc = swaggerJSDoc(options);
 
 app.use('/assets', express.static(path.join(__dirname, 'public')));
 
@@ -31,6 +67,8 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
 app.use('/api/v1/shelf', shelfRouter);
 app.use('/api/v1/posts', postRouter);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
 app.get('/', (req, res) => {
   res.writeHead(200, {
