@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 dotenv.config({ path: './config.env' });
 
-const Port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
 mongoose
   .connect(
@@ -17,4 +17,4 @@ mongoose
   )
   .then(() => console.log('DB connected successfully...'));
 
-app.listen(Port, () => console.log(`listing to the port ${Port}`));
+app.listen(PORT, () => console.log(`listing to the port ${PORT}`));
