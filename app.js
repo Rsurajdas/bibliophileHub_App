@@ -8,6 +8,7 @@ import morgan from 'morgan';
 import bookRouter from './routes/api/bookRoutes';
 import genreRouter from './routes/api/genreRoutes';
 import userRouter from './routes/api/userRoutes';
+import homeRouter from './routes/home/homeRouter';
 import AppError from './utils/appError';
 import globalErrorHandler from './controllers/errorController';
 import reviewRouter from './routes/api/reviewRoutes';
@@ -53,6 +54,7 @@ const options = {
 const swaggerDoc = swaggerJSDoc(options);
 
 app.use('/assets', express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public', 'client')));
 
 app.use(helmet());
 app.use(cors());
@@ -70,12 +72,7 @@ app.use('/api/v1/posts', postRouter);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
-app.get('/', (req, res) => {
-  res.writeHead(200, {
-    'Content-Type': 'text/html',
-  });
-  res.end('<h1>Welcome to Bibliophile Hub</h1>');
-});
+app.get('/', homeRouter);
 
 app.use(compression());
 

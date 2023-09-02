@@ -293,9 +293,16 @@ export const searchMember = catchAsync(async (req, res, next) => {
     return next(new AppError('Please provide a search query', 400));
   }
   const users = await User.find({
-    $or: [
-      { name: { $regex: query, $options: 'i' } },
-      { email: { $regex: query, $options: 'i' } },
+    $and: [
+      {
+        _id: { $ne: req.user._id },
+      },
+      {
+        $or: [
+          { name: { $regex: query, $options: 'i' } },
+          { email: { $regex: query, $options: 'i' } },
+        ],
+      },
     ],
   });
   res.status(200).json({
