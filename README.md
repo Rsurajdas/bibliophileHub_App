@@ -53,6 +53,10 @@ Whether you're a seasoned bookworm or just starting your literary adventure, Boo
    ```sh
    npm install
    ```
+3. Run App
+   ```sh
+   npm start
+   ```
 
 ## Contact
 
