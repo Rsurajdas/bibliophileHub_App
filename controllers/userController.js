@@ -57,7 +57,9 @@ export const getAllUsers = catchAsync(async (req, res, next) => {
 });
 
 export const getUser = catchAsync(async (req, res, next) => {
-  const user = await User.findById(req.params.userId).populate('following');
+  const user = await User.findById(req.params.userId)
+    .populate({ path: 'following', select: 'name photo' })
+    .populate({ path: 'request_pending', select: 'name photo' });
 
   if (!user) {
     return next(new AppError('No user found by this id'), 404);
@@ -107,6 +109,24 @@ export const getUserFollowing = catchAsync(async (req, res, next) => {
   });
 });
 
+export const getUserFollowers = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.params.userId).populate(
+    'followers',
+    'name email photo',
+  );
+
+  if (!user) {
+    return next(new AppError('User not found', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      followers: user.followers,
+    },
+  });
+});
+
 export const updateProfile = catchAsync(async (req, res, next) => {
   if (req.body.password || req.body.confirmPassword) {
     return next(new AppError('Your not allowed to perform this action!', 400));
@@ -143,7 +163,11 @@ export const sendRequest = catchAsync(async (req, res, next) => {
   const senderUserId = req.user._id;
 
   await User.findByIdAndUpdate(senderUserId, {
-    $addToSet: { friends: userId },
+    $addToSet: { request_sent: userId },
+  });
+
+  await User.findByIdAndUpdate(userId, {
+    $addToSet: { request_pending: senderUserId },
   });
 
   res.status(200).json({
@@ -156,13 +180,73 @@ export const acceptRequest = catchAsync(async (req, res, next) => {
   const userId = req.params.id;
   const receiverId = req.user._id;
 
-  await User.findByIdAndUpdate(receiverId, { $addToSet: { friends: userId } });
+  await User.findByIdAndUpdate(receiverId, {
+    $pull: { request_pending: userId },
+    $addToSet: { friends: userId },
+  });
 
-  await User.findByIdAndUpdate(userId, { $addToSet: { friends: receiverId } });
+  await User.findByIdAndUpdate(userId, {
+    $pull: { request_sent: receiverId },
+    $addToSet: { friends: receiverId },
+  });
 
   res.status(200).json({
     status: 'success',
     message: 'Friend request accepted successfully',
+  });
+});
+
+export const cancelRequest = catchAsync(async (req, res, next) => {
+  const userId = req.params.id;
+  const receiverId = req.user._id;
+
+  await User.findByIdAndUpdate(receiverId, {
+    $pull: { request_pending: userId },
+  });
+
+  await User.findByIdAndUpdate(userId, {
+    $pull: { request_sent: receiverId },
+  });
+
+  res.status(200).json({
+    status: 'success',
+    message: 'Friend request cancelled successfully',
+  });
+});
+
+export const getUserRequestSent = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.params.userId).populate(
+    'request_sent',
+    'name email photo',
+  );
+
+  if (!user) {
+    return next(new AppError('User not found', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      users: user.request_sent,
+    },
+  });
+});
+
+export const getUserRequestPending = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.params.userId).populate(
+    'request_pending',
+    'name email photo',
+  );
+
+  if (!user) {
+    return next(new AppError('User not found', 404));
+  }
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      users: user.request_pending,
+    },
   });
 });
 

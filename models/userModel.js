@@ -45,6 +45,8 @@ const userSchema = new Schema({
   friends: [{ type: ObjectId, ref: 'User' }],
   followers: [{ type: ObjectId, ref: 'User' }],
   following: [{ type: ObjectId, ref: 'User' }],
+  request_sent: [{ type: ObjectId, ref: 'User' }],
+  request_pending: [{ type: ObjectId, ref: 'User' }],
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordTokenExpireAt: Date,

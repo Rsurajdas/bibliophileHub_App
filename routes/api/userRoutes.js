@@ -10,12 +10,16 @@ import {
 } from '../../controllers/authController';
 import {
   acceptRequest,
+  cancelRequest,
   deleteAccount,
   followUser,
   getAllUsers,
   getUser,
+  getUserFollowers,
   getUserFollowing,
   getUserFriends,
+  getUserRequestPending,
+  getUserRequestSent,
   removeFriend,
   resizeUserImage,
   searchMember,
@@ -56,6 +60,12 @@ userRouter.post(
   acceptRequest,
 );
 userRouter.post(
+  '/cancel-request/:id',
+  protect,
+  restrictedTo('user', 'author'),
+  cancelRequest,
+);
+userRouter.post(
   '/follow/:id',
   protect,
   restrictedTo('user', 'author'),
@@ -85,8 +95,26 @@ userRouter.get(
   restrictedTo('user', 'author'),
   getUserFollowing,
 );
-userRouter.delete(
-  '/remove-friend/:friendId',
+userRouter.get(
+  '/followers/:userId',
+  protect,
+  restrictedTo('user', 'author'),
+  getUserFollowers,
+);
+userRouter.get(
+  '/request_sent/:userId',
+  protect,
+  restrictedTo('user', 'author'),
+  getUserRequestSent,
+);
+userRouter.get(
+  '/request_pending/:userId',
+  protect,
+  restrictedTo('user', 'author'),
+  getUserRequestPending,
+);
+userRouter.post(
+  '/unfriend/:friendId',
   protect,
   restrictedTo('user'),
   removeFriend,
