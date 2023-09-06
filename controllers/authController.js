@@ -34,8 +34,12 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 export const signUp = catchAsync(async (req, res, next) => {
+  if (req.body.password.length < 8) {
+    return next(
+      new AppError('Password is shorter then the minimum allowed length', 400),
+    );
+  }
   const newUser = await User.create(req.body);
-
   createSendToken(newUser, 201, res);
 });
 
@@ -44,6 +48,7 @@ export const login = catchAsync(async (req, res, next) => {
   if (!email || !password) {
     return next(new AppError('Please provide email or password', 401));
   }
+
   const user = await User.findOne({ email }).select('+password');
 
   if (!user || !(await user.correctPassword(password, user.password))) {
