@@ -135,7 +135,22 @@ export const aggregationBook = catchAsync(async (req, res, next) => {
       $project: {
         _id: 1,
         genre_name: 1,
-        books: { $slice: ['$books', 5] },
+        books: {
+          $slice: [
+            {
+              $map: {
+                input: '$books',
+                as: 'book',
+                in: {
+                  _id: '$$book._id',
+                  title: '$$book.title',
+                  book_image: '$$book.book_image',
+                },
+              },
+            },
+            5,
+          ],
+        },
       },
     },
   ]);
