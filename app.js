@@ -24,7 +24,7 @@ const options = {
     openapi: '3.0.0',
     servers: [
       {
-        url: 'http://localhost:3000/',
+        url: 'https://boiling-wildwood-46640-30ec30629e36.herokuapp.com/',
       },
     ],
     info: {
