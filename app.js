@@ -8,7 +8,6 @@ import morgan from 'morgan';
 import bookRouter from './routes/api/bookRoutes';
 import genreRouter from './routes/api/genreRoutes';
 import userRouter from './routes/api/userRoutes';
-import homeRouter from './routes/home/homeRouter';
 import AppError from './utils/appError';
 import globalErrorHandler from './controllers/errorController';
 import reviewRouter from './routes/api/reviewRoutes';
@@ -63,6 +62,7 @@ app.set('trust proxy', 1);
 app.use(mongoSanitize());
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
+app.use(compression());
 
 app.use('/api/v1/books', bookRouter);
 app.use('/api/v1/genres', genreRouter);
@@ -73,9 +73,12 @@ app.use('/api/v1/posts', postRouter);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
-app.get('/', homeRouter);
+app.get('/*', (req, res) => {
+  res.sendFile(
+    path.join(__dirname, 'public', 'client', 'index.html'),
+  );
+});
 
-app.use(compression());
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} in this server`, 404));
