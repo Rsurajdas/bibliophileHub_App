@@ -1,0 +1,1 @@
+import{Z as n,a0 as a,a6 as o}from"./index-a0051c01.js";function r(e){const t=e.documentElement.clientWidth;return Math.abs(window.innerWidth-t)}function s(){const e=n(o);return e[a]||e}export{r as g,s as u};

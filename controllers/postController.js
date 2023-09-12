@@ -32,7 +32,8 @@ export const getSocialPosts = catchAsync(async (req, res, next) => {
   const posts = await Post.find({ user: { $in: socialUsers } })
     .populate('book ')
     .populate({ path: 'user', select: 'name photo' })
-    .populate({ path: 'comments.user', select: 'name photo' });
+    .populate({ path: 'comments.user', select: 'name photo' })
+    .populate({ path: 'likes', select: 'name' });
 
   res.status(200).json({
     status: 'success',
