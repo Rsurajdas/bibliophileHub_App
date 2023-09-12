@@ -55,7 +55,14 @@ const swaggerDoc = swaggerJSDoc(options);
 app.use('/assets', express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public', 'client')));
 
-app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: true,
+    directives: {
+      'img-src': ["'self'", 'https: data:'],
+    },
+  }),
+);
 app.use(cors());
 app.use(express.json());
 app.set('trust proxy', 1);
@@ -74,11 +81,8 @@ app.use('/api/v1/posts', postRouter);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
 app.get('/*', (req, res) => {
-  res.sendFile(
-    path.join(__dirname, 'public', 'client', 'index.html'),
-  );
+  res.sendFile(path.join(__dirname, 'public', 'client', 'index.html'));
 });
-
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} in this server`, 404));
