@@ -100,7 +100,9 @@ export const searchBook = catchAsync(async (req, res, next) => {
 });
 
 export const getAllBooksByGenre = catchAsync(async (req, res, next) => {
-  const books = await Book.find({ genres: req.params.genreId });
+  const books = await Book.find({ genres: req.params.genreId }).select(
+    'title book_image',
+  );
 
   res.status(200).json({
     status: 'success',
