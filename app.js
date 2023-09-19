@@ -68,8 +68,8 @@ app.use(express.json());
 app.set('trust proxy', 1);
 app.use(mongoSanitize());
 app.use(morgan('dev'));
-app.use(express.urlencoded({ extended: false }));
 app.use(compression());
+app.use(express.urlencoded({ extended: false }));
 
 app.use('/api/v1/books', bookRouter);
 app.use('/api/v1/genres', genreRouter);
@@ -80,7 +80,7 @@ app.use('/api/v1/posts', postRouter);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
-app.get('/*', (req, res) => {
+app.all('/*', (req, res, next) => {
   res.sendFile(path.join(__dirname, 'public', 'client', 'index.html'));
 });
 

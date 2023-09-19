@@ -40,6 +40,7 @@ export const getShelf = catchAsync(async (req, res, next) => {
   const shelf = await Shelf.findById(req.params.id).populate({
     path: 'books.book',
   });
+
   if (!shelf) {
     return next(new AppError('No shelf found with that Id', 404));
   }
@@ -48,6 +49,7 @@ export const getShelf = catchAsync(async (req, res, next) => {
     status: 'success',
     data: {
       shelf,
+      books: shelf.books,
     },
   });
 });
@@ -138,37 +140,6 @@ export const addBook = catchAsync(async (req, res, next) => {
   });
 });
 
-// export const getAllBooksFromUserShelves = catchAsync(async (req, res, next) => {
-//   const userShelves = await Shelf.find({ user: req.user._id });
-
-//   if (!userShelves) {
-//     return next(new AppError('No shelves found for the user', 404));
-//   }
-
-//   const bookObjects = userShelves.flatMap((shelf) => shelf.books);
-
-//   const bookIds = bookObjects.map((bookObj) => bookObj.book);
-
-//   const books = await Book.find({ _id: { $in: bookIds } });
-
-//   const booksWithProgress = bookObjects.map((bookObj) => {
-//     const bookId = bookObj.book.toString();
-//     const book = books.find((book) => book._id.toString() === bookId);
-//     return {
-//       book,
-//       readingProgress: bookObj.readingProgress,
-//     };
-//   });
-
-//   res.status(200).json({
-//     status: 'success',
-//     results: booksWithProgress.length,
-//     data: {
-//       books: booksWithProgress,
-//     },
-//   });
-// });
-
 export const getAllBooksFromUserShelves = catchAsync(async (req, res, next) => {
   const userShelves = await Shelf.find({ user: req.user._id });
 
@@ -184,7 +155,7 @@ export const getAllBooksFromUserShelves = catchAsync(async (req, res, next) => {
 
   const booksWithShelves = await Promise.all(
     books.map(async (book) => {
-      const shelvesContainingBook = await Shelf.find({
+      const shelvesContainingBook = await Shelf.findOne({
         user: req.user._id,
         'books.book': book._id,
       });
@@ -201,10 +172,10 @@ export const getAllBooksFromUserShelves = catchAsync(async (req, res, next) => {
 
       return {
         book,
-        shelves: shelvesContainingBook.map((shelf) => ({
-          shelf_id: shelf._id,
-          shelf_name: shelf.shelf_name,
-        })),
+        shelf: {
+          shelf_id: shelvesContainingBook._id,
+          shelf_name: shelvesContainingBook.shelf_name,
+        },
         readingProgress,
         review: userReview,
       };
@@ -216,6 +187,53 @@ export const getAllBooksFromUserShelves = catchAsync(async (req, res, next) => {
     results: booksWithShelves.length,
     data: {
       books: booksWithShelves,
+    },
+  });
+});
+
+export const getBooksFromShelfById = catchAsync(async (req, res, next) => {
+  const shelfId = req.params.shelfId;
+
+  const shelf = await Shelf.findOne({ _id: shelfId, user: req.user._id });
+
+  if (!shelf) {
+    return next(new AppError('Shelf not found for the user', 404));
+  }
+
+  const bookObjects = shelf.books;
+  const bookIds = bookObjects.map((bookObj) => bookObj.book);
+
+  const books = await Book.find({ _id: { $in: bookIds } });
+
+  const booksWithShelfInfo = [];
+
+  for (const book of books) {
+    const bookObject = bookObjects.find(
+      (bookObj) => bookObj.book.toString() === book._id.toString(),
+    );
+    const readingProgress = bookObject.readingProgress;
+
+    const userReview = await Review.findOne({
+      user: req.user._id,
+      book: book._id,
+    });
+
+    booksWithShelfInfo.push({
+      book,
+      shelf: {
+        shelf_id: shelf._id,
+        shelf_name: shelf.shelf_name,
+      },
+      readingProgress,
+      review: userReview,
+    });
+  }
+
+  res.status(200).json({
+    status: 'success',
+    results: booksWithShelfInfo.length,
+    data: {
+      books: booksWithShelfInfo,
     },
   });
 });
@@ -285,7 +303,6 @@ export const getBooksFromCurrentlyReadingShelf = catchAsync(
 
     res.status(200).json({
       status: 'success',
-      // results: currentShelf.books.length,
       data: {
         books: bookFromCurrentlyReadingShelf,
       },
