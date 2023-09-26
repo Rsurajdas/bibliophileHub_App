@@ -9,7 +9,7 @@
     "start": "node ./bin"
   },
   "engines": {
-    "node": ">=12.18.0"
+    "node": "18.x"
   },
   "author": "Suraj Kumar",
   "license": "ISC",
