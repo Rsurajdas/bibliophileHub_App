@@ -305,6 +305,9 @@ export const searchMember = catchAsync(async (req, res, next) => {
       },
     ],
   });
+  if (!users.length) {
+    return next(new AppError('User not found!', 404));
+  }
   res.status(200).json({
     status: 'success',
     results: users.length,
