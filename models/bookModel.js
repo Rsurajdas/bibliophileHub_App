@@ -16,16 +16,16 @@ const bookSchema = new Schema(
       default: Date.now,
     },
     description: String,
-    price: { type: Number, require: true },
+    price: { type: Number, required: true },
     primary_isbn10: String,
     primary_isbn13: String,
     publisher: {
       type: String,
-      require: true,
+      required: true,
     },
     title: {
       type: String,
-      require: true,
+      required: true,
       unique: true,
     },
     updated_date: {
