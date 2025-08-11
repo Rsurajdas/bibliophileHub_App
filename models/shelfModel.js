@@ -5,12 +5,12 @@ const { ObjectId } = Schema.Types;
 const shelfSchema = new Schema({
   shelf_name: {
     type: String,
-    require: [true, 'A shelf must have a name'],
+    required: [true, 'A shelf must have a name'],
   },
   user: {
     type: ObjectId,
     ref: 'User',
-    require: [true, 'Shelf must belong to a user'],
+    required: [true, 'Shelf must belong to a user'],
   },
   books: [
     {
