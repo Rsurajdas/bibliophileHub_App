@@ -4,7 +4,7 @@ import slugify from 'slugify';
 const genreSchema = new Schema({
   genre_name: {
     type: String,
-    require: [true, 'A Genre must have a name'],
+    required: [true, 'A Genre must have a name'],
     unique: true,
     minlength: 3,
   },
