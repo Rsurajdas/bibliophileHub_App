@@ -9,11 +9,11 @@ const { ObjectId } = Schema.Types;
 const userSchema = new Schema({
   name: {
     type: String,
-    require: true,
+    required: true,
   },
   email: {
     type: String,
-    require: [true, 'Please provide a email address'],
+    required: [true, 'Please provide a email address'],
     unique: true,
     lowercase: true,
     validate: [validator.isEmail, 'Please provide a valid email address'],
@@ -28,13 +28,13 @@ const userSchema = new Schema({
   },
   password: {
     type: String,
-    require: [true, 'Please provide a password'],
+    required: [true, 'Please provide a password'],
     minlength: 8,
     select: false,
   },
   confirmPassword: {
     type: String,
-    require: [true, 'Please confirm your password'],
+    required: [true, 'Please confirm your password'],
     validate: {
       validator: function (el) {
         return el === this.password;
