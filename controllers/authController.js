@@ -87,7 +87,7 @@ export const protect = catchAsync(async (req, res, next) => {
 
   if (verifyUser.changedPasswordAfter(decodedToken.iat)) {
     return next(
-      new AppError('User recently changed password, Please login agin!'),
+      new AppError('User recently changed password, Please login again!'),
     );
   }
 
