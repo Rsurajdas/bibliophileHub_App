@@ -25,8 +25,6 @@ export const createReview = catchAsync(async (req, res, next) => {
 
   const review = await Review.create(req.body);
 
-  console.log(req.user.name);
-
   const post = new Post({
     user: req.user._id,
     book: req.params.bookId,
